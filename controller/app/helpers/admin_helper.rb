@@ -111,7 +111,7 @@ module AdminHelper
 
   def get_user_hash(user_id, skip_errors=false)
     unless $user_hash[user_id.to_s]
-      populate_user_hash({:read => :primary}, user_id, skip_errors) 
+      populate_user_hash({:read => :primary}, user_id, skip_errors)
     end
     $user_hash[user_id.to_s]
   end
@@ -211,8 +211,8 @@ module AdminHelper
         if app['members'].present?
           # add the member ssh keys
           app['members'].each do |m|
-            # we are passing the resource as nil for now since we don't have the mongoid object 
-            # and the resource is ignored for :ssh_to_gears 
+            # we are passing the resource as nil for now since we don't have the mongoid object
+            # and the resource is ignored for :ssh_to_gears
             if Ability.has_permission?(m["_id"], :ssh_to_gears, Application, m["r"], nil)
               app_ssh_keys |= $user_hash[m["_id"].to_s]["ssh_keys"] unless $user_hash[m["_id"].to_s].nil?
             end
@@ -239,11 +239,11 @@ module AdminHelper
       end if app['gears'].present?
       total_gear_count += gear_count
       $user_hash[owner_id]["domains"][domain_id] += gear_count if $user_hash[owner_id]
- 
+
       if $chk_app
         if (gear_count > 0) and !has_dns_gear
           print_message "Application '#{app['name']}' with Id '#{app['_id']}' has DNS gear missing."
-        end 
+        end
 
         domain_namespace = $domain_hash[domain_id]["canonical_namespace"]
         if app['domain_namespace'].nil?
@@ -358,7 +358,7 @@ module AdminHelper
               end
             end
             break if found
-          end 
+          end
         end
         # Generate app_gear_hash
         app['gears'].each do |gear|
@@ -432,7 +432,7 @@ module AdminHelper
         hash[gear_id]['num_end_recs'] += 1
       else
         hash[gear_id]['num_begin_recs'] += 1
-      end 
+      end
       if urec['cart_name']
         hash[gear_id]['cart_name'] = [] unless hash[gear_id]['cart_name']
         hash[gear_id]['cart_name'] << urec['cart_name']
@@ -459,6 +459,8 @@ module AdminHelper
         user_consumed_gears, app_actual_gears = check_consumed_gears(user)
         if user_consumed_gears != app_actual_gears
           print_message "User #{owner_hash['login']} has a mismatch in consumed gears (#{user_consumed_gears}) and actual gears (#{app_actual_gears})"
+          print_message "This issue can be resolved by setting the correct number of consumed gears with the oo-admin-ctl-user command:"
+          print_message "oo-admin-ctl-user -l username --setconsumedgears #{app_actual_gears}"
           error_consumed_gears_user_ids << owner_id
         end
       end
@@ -591,7 +593,7 @@ module AdminHelper
 
     # check for any unused uid in the district
     # these are uids that are reserved in the district, but no gear is using
-    puts "Checking for unused UIDs in the district" if $verbose 
+    puts "Checking for unused UIDs in the district" if $verbose
     district_used_uids = []
     $district_hash.each do |district_uuid, district_info|
       # collect gear uids from all nodes with server identities within this district
@@ -600,7 +602,7 @@ module AdminHelper
       first_uuid = Rails.configuration.msg_broker[:districts][:first_uid]
       district_all_uids = []
       district_all_uids.fill(0, district_info['max_capacity']) {|i| first_uuid + i}
-      district_unused_uids = district_all_uids - district_info['available_uids'] - district_used_uids 
+      district_unused_uids = district_all_uids - district_info['available_uids'] - district_used_uids
 
       district_unused_uids.each do |unused_uid|
         # skip if found a gear that uses this UID or UID is no longer reserved in the district
@@ -615,7 +617,7 @@ module AdminHelper
     end
 
     # check to see if there are multiple gears with the same uid in the same district
-    puts "Checking for gears with the same UID" if $verbose 
+    puts "Checking for gears with the same UID" if $verbose
     $district_hash.each do |district_id, district_info|
       # collect gear uids from all nodes with server identities within this district
       district_used_uids = []
@@ -778,7 +780,7 @@ module AdminHelper
         app['component_instances'].each do |ci|
           app_carts << ci['cartridge_name'] if premium_carts.include?(ci['cartridge_name'])
         end
-      end 
+      end
       app_carts.sort!
 
       usage_carts = []
@@ -881,9 +883,9 @@ module AdminHelper
       billing_api.check_inconsistencies(billing_user_hash, errors, $verbose)
       print_message errors.join("\n") if errors.present?
     end
-  end 
+  end
 
-  # Find allowed gear sizes inconsistencies in domains in mongo 
+  # Find allowed gear sizes inconsistencies in domains in mongo
   # vs the valid gear sizes defined in the broker configuration
   def find_domain_gear_sizes_inconsistencies
     invalid_gear_sizes = $domain_gear_sizes - Rails.configuration.openshift[:gear_sizes]
@@ -893,7 +895,7 @@ module AdminHelper
     invalid_gear_sizes
   end
 
-  # Find gear sizes inconsistencies for user capabilities in mongo 
+  # Find gear sizes inconsistencies for user capabilities in mongo
   # vs the valid gear sizes defined in the broker configuration
   def find_user_gear_sizes_inconsistencies
     invalid_gear_sizes = $user_gear_sizes - Rails.configuration.openshift[:gear_sizes]
